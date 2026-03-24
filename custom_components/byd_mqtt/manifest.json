@@ -1,0 +1,13 @@
+{
+  "domain": "byd_mqtt",
+  "name": "BYD MQTT",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://github.com/lambilly/byd_mqtt",
+  "requirements": [],
+  "dependencies": ["mqtt"],
+  "codeowners": ["@lambilly"],
+  "iot_class": "local_polling",
+  "loggers": ["custom_components.byd_mqtt"],
+  "icon": "logo.png"
+}
