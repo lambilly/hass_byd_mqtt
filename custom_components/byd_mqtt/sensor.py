@@ -121,9 +121,9 @@ class BYDSensor(SensorEntity):
             self.async_write_ha_state()
             return
 
-        # VIN
+        # VIN 从缓存中读取
         if self._is_vin:
-            self._attr_native_value = vin
+            self._attr_native_value = cache.get('vin', '')
             self.async_write_ha_state()
             return
 
@@ -258,20 +258,19 @@ class BYDAggregateSensor(SensorEntity):
                 "左后胎压": cache.get("lb_tyre_p"),
                 "右后胎压": cache.get("rb_tyre_p"),
             }
-            # 过滤掉 None 值，但保留 0（0 是有效值）
-            valid = [v for v in values.values() if v is not None]
+            # 过滤掉 None 和 0
+            valid = [v for v in values.values() if v is not None and v != 0]
             if len(valid) == 4:
                 state = "正常" if all(220 <= v <= 260 for v in valid) else "异常"
             else:
                 state = "加载中"
-
+        
             self._attr_native_value = state
             self._attr_extra_state_attributes = {
-                k: (f"{v} kPa" if v is not None else "加载中")
+                k: (f"{v} kPa" if v is not None and v != 0 else "加载中")
                 for k, v in values.items()
             }
-            _LOGGER.debug("Tyre pressure aggregated: state=%s, values=%s", state, values)
-
+        
         elif self._agg_id == "tyre_temp":
             values = {
                 "左前胎温": cache.get("lf_tyre_t"),
@@ -279,17 +278,18 @@ class BYDAggregateSensor(SensorEntity):
                 "左后胎温": cache.get("lb_tyre_t"),
                 "右后胎温": cache.get("rb_tyre_t"),
             }
-            valid = [v for v in values.values() if v is not None]
+            valid = [v for v in values.values() if v is not None and v != 0]
             if len(valid) == 4:
                 state = "正常" if all(v < 90 for v in valid) else "异常"
             else:
                 state = "加载中"
-
+        
             self._attr_native_value = state
             self._attr_extra_state_attributes = {
-                k: (f"{v} °C" if v is not None else "加载中")
+                k: (f"{v} °C" if v is not None and v != 0 else "加载中")
                 for k, v in values.items()
             }
+            
             _LOGGER.debug("Tyre temperature aggregated: state=%s, values=%s", state, values)
 
         self.async_write_ha_state()

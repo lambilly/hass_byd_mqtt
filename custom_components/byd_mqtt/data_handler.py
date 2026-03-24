@@ -45,36 +45,44 @@ class BYDDataHandler:
         payload = msg.payload
         if isinstance(payload, bytes):
             payload = payload.decode("utf-8")
-
+    
         _LOGGER.debug("Received raw MQTT message: %s", payload)
-
+    
         data = self._parse_payload(payload)
         if not data:
             _LOGGER.warning("Failed to parse payload: %s", payload)
             return
-
+    
         _LOGGER.debug("Parsed JSON data: %s", data)
-
-        # 提取 VIN（原 FLOW 逻辑）
-        vin = ""
-        try:
-            lines = payload.split("\n")
-            for line in lines:
-                if line.startswith("byd="):
-                    vin = line.split("byd=")[1].split("}}")[0].strip()
-                    break
-        except Exception as e:
-            _LOGGER.debug("VIN extraction failed: %s", e)
-
-        # 更新缓存
+    
+        # 提取 VIN（优先从 JSON 中获取，否则从第一行 "byd=" 提取）
+        vin = data.get("vin", "")
+        if not vin:
+            try:
+                lines = payload.splitlines()
+                for line in lines:
+                    if line.startswith("byd="):
+                        vin = line.split("byd=")[1].split("}}")[0].strip()
+                        break
+            except Exception as e:
+                _LOGGER.debug("VIN extraction failed: %s", e)
+    
+        # 更新缓存的 VIN
+        if vin:
+            self.cache['vin'] = vin
+        else:
+            # 如果本次未提取到，保留缓存中的 VIN（不更新）
+            vin = self.cache.get('vin', '')
+    
+        # 更新其他数据缓存
         self._update_cache_from_data(data)
-
+    
         _LOGGER.debug("Cache after update: %s", self.cache)
-
+    
         # 触发实体更新
         async_dispatcher_send(self.hass, f"{DOMAIN}_new_data", {
             "data": data,
-            "vin": vin,
+            "vin": vin,          # 此处仍传递当前提取的 vin（可能为空），但传感器会从缓存读取
             "cache": self.cache.copy(),
         })
 
