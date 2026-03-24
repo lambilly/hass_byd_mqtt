@@ -21,7 +21,7 @@
 ### 通过 HACS 安装（推荐）
 
 1. 确保已安装 [HACS](https://hacs.xyz/)
-2. 将本仓库添加为自定义存储库（URL: `https://github.com/lambilly/byd_mqtt`）
+2. 将本仓库添加为自定义存储库（URL: `https://github.com/lambilly/hass_byd_mqtt`）
 3. 在 HACS 中搜索 “BYD MQTT” 并安装
 4. 重启 Home Assistant
 
