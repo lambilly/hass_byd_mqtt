@@ -88,13 +88,14 @@
 service: byd_mqtt.reset_cache
 data: {}
 ```
-##数据格式
+## 数据格式
 
 集成订阅的 MQTT 主题应收到如下格式的数据（支持多行，其中一行 JSON 包含所需字段）：
+```
 json
 {"bR":380,"bP":74,"bE":47.33,"tM":14157.1,"tempOut":24,"tempIn":26,"inHumidity":0,"wind":0,"doorLock":2,"mainBelt":1,"power":0,"compress":0,"frontDefrost":0,"rearDefrost":0,"speed":0,"motoSpeed":10,"wheelAngle":-77.5,"breakDeep":25,"accelerate":0,"lfTyreP":230,"rfTyreP":235,"lbTyreP":228,"rbTyreP":232,"lfTyreT":25,"rfTyreT":26,"lbTyreT":24,"rbTyreT":25,"windowLf":0,"windowRf":0,"windowLr":0,"windowRr":0,"windowMoon":0}
-
-###字段说明（部分）：
+```
+### 字段说明（部分）：
 字段	说明
 bR	剩余续航 (km)
 bP	剩余电量 (%)
@@ -119,26 +120,24 @@ lfTyreP 等	轮胎气压 (kPa)
 lfTyreT 等	轮胎温度 (°C)
 windowLf 等	车窗状态：0=关闭，非0=打开
 
-##故障排查
-启用调试日志：在 configuration.yaml 添加以下内容，重启 HA，观察日志：
+### 故障排查
 
-yaml
+启用调试日志：在 configuration.yaml 添加以下内容，重启 HA，观察日志：
+```yaml
 logger:
   default: info
   logs:
     custom_components.byd_mqtt: debug
+```
 确认 MQTT 消息：使用 MQTT 客户端（如 MQTT Explorer）订阅您的主题，验证消息格式。
-
 常见问题：
 
-实体显示“未知”：检查 MQTT 消息中是否包含对应字段；检查字段名是否与映射一致。
+1. 实体显示“未知”：检查 MQTT 消息中是否包含对应字段；检查字段名是否与映射一致。
+2. 聚合传感器显示“加载中”：确保四个轮胎的气压/温度都已收到（0 值也会更新，但为有效值）。
+3.重置缓存：调用服务 byd_mqtt.reset_cache，或重启 HA。
 
-聚合传感器显示“加载中”：确保四个轮胎的气压/温度都已收到（0 值也会更新，但为有效值）。
-
-重置缓存：调用服务 byd_mqtt.reset_cache，或重启 HA。
-
-##作者
+## 作者
 lambilly (https://github.com/lambilly)
 
-##许可证
+## 许可证
 MIT License
