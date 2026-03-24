@@ -1,0 +1,2 @@
+# byd_mqtt
+本集成是通过比亚迪BYD迪粉桌面MQTT功能接入到HomeAssistant并解析JSON的集成。
